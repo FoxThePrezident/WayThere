@@ -183,5 +183,5 @@ cmake-build-*/
 .idea/caches/build_file_checksums.ser
 
 # Custom Files
-# connections.xml
+connections.xml
 statistic.xml
