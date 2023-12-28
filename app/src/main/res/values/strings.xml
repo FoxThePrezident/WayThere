@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Wayward</string>
+    <string name="appDescription">Wayward je váš cestovný spoločník, ktorý vám pomáha efektívne plánovať vaše trasy. Či už cestujete hromadnou dopravou alebo vlastným vozidlom, Wayward vám poskytuje presné informácie o trasách, odchodoch a dôležitých oznámeniach.</string>
+
+    <!--    welcome screen activity-->
+    <string name="title_activity_welcome_screen">Vitajte vo Wayward\n</string>
+    <string name="functionsTitle">Funkcie</string>
+    <string name="functions">- Plánovanie Trás\n- Časy Odchodov\n- Oznámenia</string>
+    <string name="permissionTitle">Oprávnenia</string>
+    <string name="permission">- Oprávnenie k Polohe (Voliteľné)\n- Oprávnenie na Oznámenia (Odporučené)</string>
+    <string name="grantPermission">Povoliť oprávnenia</string>
+
+    <!--    Route search activity-->
+    <string name="routeSearchTitle">Vyhľadávanie spojení</string>
+    <string name="loadingMsg">Loading…</string>
+    <string name="search">Vyhľadať spojenie</string>
+    <string name="fromSearch">Vyhľadá zadané miesto na mapách</string>
+    <string name="fromStation">Odkiaľ</string>
+    <string name="toStation">Kam</string>
+    <string name="open_map_start">Otvorý mapu na vybratie počiatočnej pozície</string>
+    <string name="delay">Preferovaný voľný čas medzi jednotlivými zastávkami:</string>
+    <string name="delay_hint">Čas v minútach</string>
+
+    <!--    Map activity-->
+    <string name="back">Naspäť</string>
+    <string name="title_activity_maps">Mapa</string>
+</resources>

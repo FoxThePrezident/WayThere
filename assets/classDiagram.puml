@@ -1,0 +1,158 @@
+ @startuml
+'https://plantuml.com/class-diagram
+'I used symbol ~ for indicating that that method is overridden
+!pragma useIntermediatePackages false
+
+<style>
+    .1 {
+        BackgroundColor GreenYellow
+    }
+    .2 {
+        BackgroundColor Chartreuse
+    }
+    .3 {
+        BackgroundColor Lime
+    }
+</style>
+
+package com.waywardTeam.wayward <<1>> {
+    class WelcomeScreen {
+        ~onCreate(): Void
+        -request(): Void
+        -next(): Void
+        ~onRequestPermissionsResult(): Void
+    }
+    WelcomeScreen -left- RouteSearchActivity
+
+    class RouteSearchActivity {
+        -mapToPositionCode: Int
+        -mapFromPositionCode: Int
+        -fromLatLng: LatLng
+        -toLatLng: LatLng
+        -fromLocation: String
+        -toLocation: String
+        -handler: Handler
+        -text: text
+        -button: Button
+        -fileManager: FileManager
+        -userPreferences: UserPreferences
+        -placesClient: PlacesClient
+        ~onCreate(): Void
+        -searchRoute(): Void
+        -processData(): Void
+        -getData(): Void
+        ~onActivityResult(): Void
+    }
+    RouteSearchActivity -right- MapActivity
+    RouteSearchActivity -- utilities.Convert
+    RouteSearchActivity -- utilities.Internet
+    RouteSearchActivity -- utilities.Trimming
+    RouteSearchActivity -- utilities.FileManager
+    RouteSearchActivity -- utilities.Miscellaneous
+    RouteSearchActivity -- utilities.dataClasses.Transportation
+    RouteSearchActivity -- utilities.dataClasses.MapData
+    RouteSearchActivity -- utilities.dataClasses.PolylineRoute
+    RouteSearchActivity -- utilities.dataClasses.UserPreferences
+
+    class MapActivity {
+        -debugTag: String
+        -task: String
+        -locationPermissionRequestCode: Int
+        -googleMap: GoogleMap
+        -binding: ActivityMapsBinding
+        -searchButton: Button
+        -pickedName: String
+        -pickedLocation: LatLng
+        -longPressMarker: Marker
+        ~onCreate(): Void
+        ~onMapReady(): Void
+        -locationHandle(): Void
+        -markerHandle(): Void
+        -getLastKnownLocation(): Void
+        ~onMapLongClick(): Void
+        ~onRequestPermissionsResult(): Void
+    }
+    MapActivity -- utilities.Convert
+    MapActivity -- utilities.Internet
+    MapActivity -- utilities.dataClasses.Stop
+    MapActivity -- utilities.dataClasses.MapData
+    MapActivity -- utilities.dataClasses.PolylineRoute
+
+    package utilities <<2>> {
+        class Convert {
+            +toDataClass(): Transportation[]
+            +toLatLng(): LatLng
+            +formatJSON(): City
+            +formatTime(): String
+        }
+        Convert -- Transportation
+
+        package dataClasses <<3>> {
+            class Stop {
+                +name: String
+                +location: String
+                +type: String
+                ~equals(): Boolean
+                ~hashCode(): Int
+            }
+            class Transportation {
+                +id: String
+                +provider: String
+                +route: Route[]
+            }
+            class Route {
+                +time: LocalTime
+                +stop: String
+            }
+            class UserPreferences {
+                +timeBetweenWaiting: Long
+            }
+            class MapData {
+                +name: String
+                +location: LatLng
+                ~writeToParcel(): Void
+                ~describeContents(): Int
+            }
+            class PolylineRoute {
+                +route LatLng[]
+                +color: Int
+                ~writeToParcel(): Void
+                ~describeContents(): Int
+            }
+            Route --|> Transportation
+            UserPreferences -[hidden]- Stop
+        }
+
+        class FileManager {
+            -userPreferencesName: String
+            +readPreferences(): UserPreferences
+            +savePreferences(): Void
+            -writeToFile(): Void
+            -readFromFile(): String
+        }
+        FileManager -- UserPreferences
+
+        class Internet {
+            +fromLatLngToName(): String
+            +getDirections(): String
+            +getPublicRoute(): String
+        }
+
+        class Miscellaneous {
+            +findClosestMarker(): Stop
+            +showNotification(): Void
+        }
+
+        class Trimming {
+            -page: String
+            +run(): String
+            -removeUntil(): Void
+            -removeAfter(): Void
+            -trimWords(): Void
+            -trimTags(): Void
+            -tagsAndBetween(): Void
+        }
+    }
+}
+
+@enduml

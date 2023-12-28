@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+    <TextView
+            android:id="@+id/tvAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:layout_marginBottom="16dp"
+            android:layout_centerHorizontal="true"/>
+
+    <TextView
+            android:id="@+id/tvAppDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/appDescription"
+            android:layout_below="@id/tvAppName"
+            android:layout_marginTop="8dp"/>
+
+    <TextView
+            android:id="@+id/tvFeatures"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/functionsTitle"
+            android:textStyle="bold"
+            android:layout_below="@id/tvAppDescription"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+    <TextView
+            android:id="@+id/tvFeaturesContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/functions"
+            android:layout_below="@id/tvFeatures"
+            android:layout_marginTop="8dp"/>
+
+    <TextView
+            android:id="@+id/tvPermissions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permissionTitle"
+            android:textStyle="bold"
+            android:layout_below="@id/tvFeaturesContent"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+    <TextView
+            android:id="@+id/tvPermissionsContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permission"
+            android:layout_below="@id/tvPermissions"
+            android:layout_marginTop="8dp"/>
+
+    <Button
+            android:id="@+id/grantPermission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/grantPermission"
+            android:layout_below="@+id/tvPermissionsContent"/>
+</RelativeLayout>

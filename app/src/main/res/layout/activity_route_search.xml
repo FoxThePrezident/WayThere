@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--need to be the same as in folder named layout-v21 and in folder named layout-->
+<LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:background="@color/white">
+
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/Primary">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/routeSearchTitle"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+    </androidx.appcompat.widget.Toolbar>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/black"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:orientation="vertical"
+            android:background="@color/Primary">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_adjust_24"
+                    android:backgroundTint="@color/transparent"
+                    android:importantForAccessibility="no"/>
+
+            <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fromPositionTxt"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+            <ImageButton
+                    android:id="@+id/fromPositionBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_map_24"
+                    android:contentDescription="@string/open_map_start"
+                    android:backgroundTint="@color/transparent"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_location_on_24"
+                    android:backgroundTint="@color/transparent"
+                    android:importantForAccessibility="no"/>
+
+            <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/toPositionTxt"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+            <ImageButton
+                    android:id="@+id/toPositionBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_map_24"
+                    android:contentDescription="@string/open_map_start"
+                    android:backgroundTint="@color/transparent"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+            <Button
+                    android:id="@+id/searchBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search"
+                    android:enabled="false"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delay"/>
+
+        <EditText
+                android:id="@+id/timeOffsetTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:importantForAutofill="no"
+                android:hint="@string/delay_hint"/>
+    </LinearLayout>
+</LinearLayout>
