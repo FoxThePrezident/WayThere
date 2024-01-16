@@ -1,16 +1,17 @@
 package com.waywardTeam.wayward.utilities
 
 import com.google.android.gms.maps.model.LatLng
-import java.time.Duration
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
 import java.util.*
 
 
-// class with function related to a managing data and formatting it
+// Class with function related to a managing data and formatting it
 class Convert {
-    // function for converting
-    // It will take string and convert it to data class named Data
+    /**
+     * @param clearData string that will be formatted
+     * @return list of data classes Transportation
+     */
     fun toDataClass(clearData: String): MutableList<Transportation> {
         val scanner = Scanner(clearData)
         val data = mutableListOf<Transportation>()
@@ -40,9 +41,11 @@ class Convert {
         return data
     }
 
-
-    // It will convert coordinate string to a LatLng,
-    // For example, input - 49.055834,20.279786, output - LatLng(49.055834, 20.279786)
+    /**
+     * Converting string to LatLng class
+     * @param location string that will be formatted, like 49.055834,20.279786
+     * @return LatLng, like LatLng(49.055834, 20.279786)
+     */
     fun toLatLng(location: String): LatLng {
         val (latString, lngString) = location.split(", ")
 
@@ -65,14 +68,5 @@ class Convert {
         }
 
         return LatLng(lat, lng)
-    }
-
-    // Formatting time to string
-    fun formatTime(time: Duration): String {
-        return "${time.toHours()}:${time.toMinutes()}"
-    }
-
-    fun formatTime(time: LocalTime): String {
-        return "${time.hour}:${time.minute}"
     }
 }

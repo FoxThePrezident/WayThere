@@ -1,6 +1,9 @@
 package com.waywardTeam.wayward.utilities
 
-// class for clearing html page from things that we do not need
+/**
+ * Clearing html page from things that we do not need
+ * @property page is html string that we want to format
+ */
 @Suppress("SameParameterValue")
 class Trimming(private var page: String) {
     //main function for controlling a clearing process
@@ -32,8 +35,12 @@ class Trimming(private var page: String) {
         return page
     }
 
-    // function that will remove everything until occurrence of an input
-    // Example input: startTag=<div, selector=class, filterBy=buttons
+    /**
+     * Will remove everything from start until occurrence of an input
+     * @param startTag html tag that will focus on, like <div
+     * @param selector either class or id
+     * @param filterBy parameter for selector, like header
+     */
     private fun removeUntil(startTag: String, selector: String, filterBy: String) {
         // searching for matches
         val startingTagPattern = """$startTag $selector="$filterBy""".toRegex()
@@ -46,9 +53,12 @@ class Trimming(private var page: String) {
         }
     }
 
-    // function that will remove everything after occurrence based on an input
-    // example input: startTag = <div, selector=class, filterBy=buttons
-    // restriction: selector=[class,id]
+    /**
+     * Will remove everything after occurrence based on an input
+     * @param startTag html tag that will focus on, like <div
+     * @param selector either class or id
+     * @param filterBy parameter for selector, like header
+     */
     private fun removeAfter(startTag: String, selector: String, filterBy: String) {
         // searching for matches
         val startingTagPattern = """$startTag $selector="$filterBy""".toRegex()
@@ -61,8 +71,12 @@ class Trimming(private var page: String) {
         }
     }
 
-    // function for removing individual words
-    // Example input: word = >>
+    /**
+     * Removing individual words
+     * @param word is a String, that will be replaced
+     * @param replaceItWith defines, that with what string will be replacing occurrences
+     * @param onlyOneTag tels if we want to remove everything, or only just one occurrence
+     */
     private fun trimWords(word: String, replaceItWith: String = "", onlyOneTag: Boolean = false) {
         do {
             // finding index of word that was provided
@@ -75,8 +89,13 @@ class Trimming(private var page: String) {
         } while (!onlyOneTag)
     }
 
-    // function for removing strings of text based on a starting point and ending point
-    // example input: startTag=<, endTag = >
+    /**
+     * Will remove strings of text based on a starting point and ending point
+     * @param startTag check for the starting point of removing process, like <
+     * @param endTag check for ending point of removing, like >
+     * @param replaceItWith defines, that with what string will be replacing occurrences
+     * @param onlyOneTag tels if we want to remove everything, or only just one occurrence
+     */
     private fun trimTags(startTag: String, endTag: String, replaceItWith: String = "", onlyOneTag: Boolean = false) {
         do {
             // getting indexes
@@ -95,9 +114,14 @@ class Trimming(private var page: String) {
         } while (!onlyOneTag)
     }
 
-    // removing tags and everything in between based on a selector
-    // example input: startTag=<div, endTag=/div>, filterBy=main
-    // restriction: selector=[class,id]
+    /**
+     * Removing tags and everything in between based on a selector
+     * @param startTag check for the starting point of removing process, like <div
+     * @param endTag check for ending point of removing, like /div>
+     * @param filterBy parameter for selector, like header
+     * @param selector either class or id
+     * @param onlyOneTag tels if we want to remove everything, or only just one occurrence
+     */
     private fun tagsAndBetween(
         startTag: String, endTag: String, filterBy: String, selector: String = "class", onlyOneTag: Boolean = false
     ) {

@@ -7,24 +7,45 @@ import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 
+/**
+ * Class for managing files
+ * @property userSettingsName defines name of the file that is loaded
+ * @property context from an activity currently working from
+ */
 @Suppress("SameParameterValue")
 class FileManager(private val context: Context) {
-    private val userPreferencesName = "user_preferences.json"
-    fun readPreferences(): UserPreferences? {
-        val jsonString = readFromFile(userPreferencesName)
+    private val userSettingsName = "user_preferences.json"
+
+    /**
+     * Reads file from a storage, in case of that file is not existing, it will create a new one
+     * @return data class UserSettings
+     */
+    fun readPreferences(): UserSettings? {
+        val jsonString = readFromFile(userSettingsName)
         if (jsonString == null) {
-            savePreferences(UserPreferences(5))
+            // If a file doesn't exist or there's an issue, create a new one with default settings
+            savePreferences(UserSettings(5))
+            // Read again after creating the file
+            return readFromFile(userSettingsName)?.let {
+                Gson().fromJson(it, UserSettings::class.java)
+            }
         }
-        return Gson().fromJson(jsonString, UserPreferences::class.java)
+        return Gson().fromJson(jsonString, UserSettings::class.java)
     }
 
-    fun savePreferences(userPreferences: UserPreferences) {
-        val json = Gson().toJson(userPreferences)
-        writeToFile(userPreferencesName, json)
+    /**
+     * Save user preferences to a storage
+     * @param userSettings data class that will be converted to json and saved
+     */
+    fun savePreferences(userSettings: UserSettings) {
+        val json = Gson().toJson(userSettings)
+        writeToFile(userSettingsName, json)
     }
 
-    // function for writing data into a file
-    private fun writeToFile(fileName: String, data: String?) {
+    /**
+     * Writing data into a file
+     */
+    private fun writeToFile(fileName: String, data: String) {
         try {
             val fileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE)
             val outputStreamWriter = OutputStreamWriter(fileOutputStream)
@@ -36,7 +57,11 @@ class FileManager(private val context: Context) {
         }
     }
 
-    // function for reading data from a file
+    /**
+     * Reading data from a file\
+     * @param fileName name of file that will read from
+     * @return String containing data from a file
+     */
     private fun readFromFile(fileName: String): String? {
         val file = File(context.filesDir, fileName)
         if (file.exists()) {

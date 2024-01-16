@@ -13,8 +13,16 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-// class for managing networking
-class Internet {
+/**
+ * Class for managing networking
+ * @property context from an activity currently working from
+ */
+class Internet(private val context: Context) {
+    /**
+     * Read from html address page, contains try-catch in it
+     * @param url is a page that will load from
+     * @return html page
+     */
     private fun getPage(url: String): String? {
         try {
             val urlObj = URL(url)
@@ -47,7 +55,12 @@ class Internet {
         }
     }
 
-    fun fromLatLngToName(context: Context, latLng: LatLng): String? {
+    /**
+     * Will get from Google api details about location
+     * @param latLng location of the place that we want details about
+     * @return name of the address
+     */
+    fun fromLatLngToName(latLng: LatLng): String? {
         val apiKey = getString(context, R.string.MAPS_API_KEY)
         val url =
             "https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.latitude},${latLng.longitude}&key=$apiKey"
@@ -56,7 +69,7 @@ class Internet {
             val response = getPage(url) ?: return null
 
             // Parse JSON response
-            val jsonResponse = JSONObject(response.toString())
+            val jsonResponse = JSONObject(response)
             val results = jsonResponse.getJSONArray("results")
 
             if (results.length() > 0) {
@@ -71,7 +84,14 @@ class Internet {
         }
     }
 
-    fun getDirection(context: Context, originLoc: LatLng, destLoc: LatLng, mode: String): String? {
+    /**
+     * Get information about route from pint A to point B
+     * @param originLoc from where we want route
+     * @param destLoc to where we want route
+     * @param mode by which mode we want to travel, like walking or driving
+     * @return JSON string about information about route
+     */
+    fun getDirection(originLoc: LatLng, destLoc: LatLng, mode: String): String? {
         val apiKey = getString(context, R.string.MAPS_API_KEY)
         // Build the request URL
         val origin = "${originLoc.latitude},${originLoc.longitude}"
@@ -81,22 +101,24 @@ class Internet {
         return getPage(url)
     }
 
+    /**
+     * Will get information about public transport
+     * @param page name of the page we want information from
+     * @param fromStation origin station
+     * @param toStation destination station
+     * @param time for time of departure/arrive
+     * @param byArrive true/false defining if time given is time that we want to depart or time that we want to be at end station
+     * @return html page
+     */
     fun getPublicRoute(
-        page: String, fromStation: String? = null, toStation: String? = null, time: String? = null
+        page: String, fromStation: String, toStation: String, time: String, byArrive: Boolean
     ): String? {
-        val phpParams = mutableListOf<String>()
-        // building php parameters
-        if (time != null) phpParams.add("time=$time")
-        if (fromStation != null) phpParams.add("f=$fromStation")
-        if (toStation != null) phpParams.add("t=$toStation")
+        val phpParams = listOfNotNull(time.let { "time=$it" },
+            fromStation.let { "f=$it" },
+            toStation.let { "t=$it" },
+            byArrive.let { "byarr=$byArrive" })
 
-        val link = StringBuilder().append("https://").append(page).append("?")
-            .append(String(phpParams[0].toByteArray(), Charsets.UTF_8))
-        phpParams.removeFirst()
-        for (param in phpParams) {
-            link.append("&" + String(param.toByteArray(), Charsets.UTF_8))
-        }
-        val link1 = link.toString().replace(" ", "+")
-        return getPage(link1)
+        val link = StringBuilder("https://$page?${phpParams.joinToString("&")}")
+        return getPage(link.toString().replace(" ", "+"))
     }
 }

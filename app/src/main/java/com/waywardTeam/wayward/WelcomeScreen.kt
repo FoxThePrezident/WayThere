@@ -1,9 +1,9 @@
 package com.waywardTeam.wayward
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +11,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.wayward.R
 
+/**
+ * Welcome screen for showing users necessary information about permissions, usage and functions
+ */
 class WelcomeScreen : AppCompatActivity() {
     // Function called on activity starts up
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,18 +31,21 @@ class WelcomeScreen : AppCompatActivity() {
             next()
         }
 
-        // Button
+        // Button for granting permissions
         val checkPermissionButton: Button = findViewById(R.id.grantPermission)
         checkPermissionButton.setOnClickListener {
             request()
         }
     }
 
-    // Function for handling permission requests
-    @SuppressLint("InlinedApi")
+    /**
+     * Handling permission request
+     * Will loop over each permission that it needs for program operating properly
+     */
     private fun request() {
         // List for storing permissions
         val perm = mutableListOf<String>()
+
         // Location
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -53,7 +59,9 @@ class WelcomeScreen : AppCompatActivity() {
                 this, Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            perm.add(Manifest.permission.POST_NOTIFICATIONS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                perm.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
 
         // Requesting permissions
@@ -64,7 +72,9 @@ class WelcomeScreen : AppCompatActivity() {
         }
     }
 
-    // Function for redirecting to next activity
+    /**
+     * Redirecting to next activity
+     */
     private fun next() {
         val intent = Intent(this, RouteSearchActivity::class.java)
         startActivity(intent)
@@ -73,6 +83,7 @@ class WelcomeScreen : AppCompatActivity() {
 
     // This function is called when it got back permission results
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        // Calling original code from on onRequestPermissionsResult
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         next()
     }

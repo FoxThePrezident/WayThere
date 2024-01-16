@@ -33,14 +33,12 @@ data class Stop(val name: String = "", val location: String = "", val type: Arra
 data class Transportation(val id: String, val provider: String, val route: MutableList<Route>)
 data class Route(val time: LocalTime, val stop: String)
 
-data class UserPreferences(var timeBetweenWaiting: Long)
+data class UserSettings(var timeBetweenWaiting: Long)
 
 data class MapData(val name: String, val location: LatLng?) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString().toString(),
-        parcel.readParcelable(LatLng::class.java.classLoader)
-    ) {
-    }
+        parcel.readString().toString(), parcel.readParcelable(LatLng::class.java.classLoader)
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
@@ -83,6 +81,32 @@ data class PolylineRoute(val route: MutableList<LatLng>, val color: Int) : Parce
         }
 
         override fun newArray(size: Int): Array<PolylineRoute?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+data class NotificationData(val importance: Int, val text: String) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(), parcel.readString().toString()
+    ) {
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(importance)
+        parcel.writeString(text)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<NotificationData> {
+        override fun createFromParcel(parcel: Parcel): NotificationData {
+            return NotificationData(parcel)
+        }
+
+        override fun newArray(size: Int): Array<NotificationData?> {
             return arrayOfNulls(size)
         }
     }

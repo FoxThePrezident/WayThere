@@ -29,13 +29,14 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
             android:orientation="vertical"
             android:background="@color/Primary">
 
+        <!--From a place -->
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,6 +65,7 @@
                     android:backgroundTint="@color/transparent"/>
         </LinearLayout>
 
+        <!-- To a place -->
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -92,6 +94,7 @@
                     android:backgroundTint="@color/transparent"/>
         </LinearLayout>
 
+        <!-- Search button -->
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -100,6 +103,13 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_weight="1"/>
+
+            <ProgressBar
+                    android:id="@+id/loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"/>
 
             <Button
                     android:id="@+id/searchBtn"
@@ -113,19 +123,81 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:orientation="vertical">
+
+        <!-- Time delay -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/delay"/>
+
+            <EditText
+                    android:id="@+id/timeOffsetTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:importantForAutofill="no"
+                    android:hint="@string/delayHint"/>
+        </LinearLayout>
+
+        <RadioGroup
+                android:id="@+id/typeOfRouteSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <RadioButton
+                    android:id="@+id/destinationASAP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/destinationASAP"
+                    android:checked="true"/>
+
+
+            <RadioButton
+                    android:id="@+id/specifiedTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/specifiedTime"/>
+
+            <EditText
+                    android:id="@+id/arriveTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="none"/>
+        </RadioGroup>
 
         <TextView
+                android:id="@+id/publicTxt"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/delay"/>
+                android:layout_height="wrap_content"/>
 
-        <EditText
-                android:id="@+id/timeOffsetTxt"
+        <!-- Type of transport -->
+        <LinearLayout
+                android:id="@+id/transport"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:importantForAutofill="no"
-                android:hint="@string/delay_hint"/>
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transChoose"/>
+
+            <Spinner
+                    android:id="@+id/transOptions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

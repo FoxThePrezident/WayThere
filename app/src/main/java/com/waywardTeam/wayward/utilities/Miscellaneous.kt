@@ -1,19 +1,22 @@
 package com.waywardTeam.wayward.utilities
 
-import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.location.Location
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
 import org.json.JSONObject
 
-class Miscellaneous {
-    // Function that will calculate the nearest marker from a list
-    // Input - location=location that we want to achieve, stops-list of Stops that we will iterate over
+/**
+ * Various functions that weren't sorted
+ * @property context from an activity currently working from
+ */
+class Miscellaneous(private var context: Context) {
+    /**
+     * Calculate nearest given marker
+     * @param location location that we want the closest marker to
+     * @param stops list of markers that is chosen from
+     * @return marker that is closest
+     */
     fun findClosestMarker(location: LatLng, stops: MutableList<Stop>): Stop? {
         var closestStop: Stop? = null
         var smallestDistance = Float.MAX_VALUE
@@ -36,11 +39,17 @@ class Miscellaneous {
         return closestStop
     }
 
-    // Function that will request google map direction api for directions to a certain point
+    /**
+     * Getting useful information from a Google direction api
+     * @param from location of a place that we are departure from
+     * @param to location that we want to arrive
+     * @param mode mode of route search will influence the speed of traveling and roads that are chosen from
+     * @return list of LatLng points that represent the route and duration of a trip
+     */
     fun getDirections(
-        context: Context, from: LatLng, to: LatLng, mode: String = "walking"
-    ): Pair<MutableList<LatLng>, JSONObject> {
-        val directionsJson = Internet().getDirection(context, from, to, mode)
+        from: LatLng, to: LatLng, mode: String = "walking"
+    ): Pair<MutableList<LatLng>, Long> {
+        val directionsJson = Internet(context).getDirection(from, to, mode)
 
         // Getting first route
         val route =
@@ -55,31 +64,8 @@ class Miscellaneous {
 
         // Getting time that it takes to finish route that we requested
         val leg = route.getJSONArray("legs").getJSONObject(0) // Assuming there's only one "leg"
-        val duration = leg.getJSONObject("duration")
+        val duration = leg.getJSONObject("duration").getString("value").toLong()
 
         return Pair(decodedPath, duration)
-    }
-
-    // Function for managing notifications
-    @SuppressLint("MissingPermission")
-    fun showNotification(context: Context, id: Int, text: String) {
-        // Unique ID for the notification channel
-        val channelId = "default_channel_id"
-
-        // Create a notification manager
-        val notificationManager = NotificationManagerCompat.from(context)
-
-        // Create a notification channel if not already created
-        val channel = NotificationChannel(
-            channelId, "Default Channel", NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationManager.createNotificationChannel(channel)
-
-        // Create a notification
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Notification Title").setContentText(text).setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-        notificationManager.notify(id, builder.build())
     }
 }

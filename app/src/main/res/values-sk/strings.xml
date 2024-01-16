@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">WayThere</string>
+    <string name="appDescription">WayThere je váš cestovný spoločník, ktorý vám pomáha efektívne plánovať vaše trasy. Či už cestujete hromadnou dopravou alebo vlastným vozidlom, WayThere vám poskytuje presné informácie o trasách, odchodoch a dôležitých oznámeniach.</string>
+
+    <!-- Welcome screen activity -->
+    <string name="title_activity_welcome_screen">Vitajte vo WayThere\n</string>
+    <string name="functionsTitle">Funkcie</string>
+    <string name="functions">- Plánovanie Trás\n- Časy Odchodov\n- Oznámenia</string>
+    <string name="permissionTitle">Oprávnenia</string>
+    <string name="permission">- Oprávnenie k Polohe (Voliteľné)\n- Oprávnenie na Oznámenia (Odporučené)</string>
+    <string name="grantPermission">Povoliť oprávnenia</string>
+
+    <!-- Route search activity -->
+    <string name="routeSearchTitle">Vyhľadávanie spojení</string>
+    <string name="search">Vyhľadať spojenie</string>
+    <string name="fromSearch">Vyhľadá zadané miesto na mapách</string>
+    <string name="fromStation">Odkiaľ</string>
+    <string name="toStation">Kam</string>
+    <string name="open_map_start">Otvorý mapu na vybratie počiatočnej pozície</string>
+    <!-- Time delay -->
+    <string name="delay">Voľný čas pred odchodom:</string>
+    <string name="delayHint">v minutách</string>
+    <!-- Radio buttons -->
+    <string name="transChoose">Vyberte si typ transportu</string>
+    <string-array name="transOptionTxt">
+        <item>Peši</item>
+        <item>Primárne autom</item>
+        <item>Mhd + bus + vlak</item>
+    </string-array>
+    <string name="time_format">%d:%02d</string>
+    <string name="destinationASAP">Dostať sa do cieľa čo najskôr.</string>
+    <string name="specifiedTime">Dostať sa do cieľa v špecifikovanom čase</string>
+
+    <!-- Map activity -->
+    <string name="back">Naspäť</string>
+    <string name="title_activity_maps">Mapa</string>
+
+    <!-- Notification -->
+    <string name="freeTime">Máte ešte %s minút voľného času.</string>
+    <string name="timeToDeparture">Je čas vyraziť</string>
+</resources>

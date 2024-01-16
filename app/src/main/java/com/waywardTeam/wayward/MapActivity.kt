@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +32,8 @@ import kotlin.concurrent.thread
 
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
-    private var debugTag = "MapActivity"
+
+    private var id: Int = 0
     private lateinit var task: String
 
     private val locationPermissionRequestCode = 1
@@ -47,6 +47,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
     // Visual stuff for a map
     private var longPressMarker: Marker? = null
 
+    // Custom classes
+    private lateinit var internet: Internet
+    private lateinit var convert: Convert
+
     // Function for setup activity on a first launch
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +58,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Getting information from intent that was provided by calling activity
         task = intent.getStringExtra("task").toString()
+        id = intent.getIntExtra("id", 0)
+
+        internet = Internet(this)
+        convert = Convert()
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -67,12 +76,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
             thread(start = true) {
                 // Checking if we got name of the place
                 if (pickedName == "") {
-                    val response = Internet().fromLatLngToName(this, pickedLocation)
+                    val response = internet.fromLatLngToName(pickedLocation)
                     if (response != null) {
                         pickedName = response
                     }
                 }
                 resultIntent.putExtra("location", MapData(pickedName, pickedLocation))
+                resultIntent.putExtra("id", id)
                 setResult(RESULT_OK, resultIntent)
                 finish()
             }
@@ -93,6 +103,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         this.googleMap = googleMap
         this.googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
 
+        // Settings for a map
         val uiSettings = googleMap.uiSettings
         uiSettings.isZoomControlsEnabled = true
         uiSettings.isMapToolbarEnabled = true
@@ -159,7 +170,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         }
     }
 
-    // Function for handling all location-related stuff in case that location is allowed
+    /**
+     * Handling all location-related stuff in case that location is allowed
+     */
     @SuppressLint("MissingPermission")
     private fun locationHandle() {
         googleMap.isMyLocationEnabled = true
@@ -178,18 +191,20 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         }
     }
 
+    /**
+     * Handling marker related things
+     */
     private fun markerHandle() {
         val db = FirebaseFirestore.getInstance()
 
         val docRef = db.collection("Country").document("Slovakia")
-        docRef.get().addOnFailureListener { exception ->
-            Log.d(debugTag, "get failed with ", exception)
+        docRef.get().addOnFailureListener { _ ->
         }.addOnSuccessListener { document ->
             if (document == null || document.data == null) {
                 return@addOnSuccessListener
             }
 
-            for ((city, markers) in document.data!!) {
+            for ((_, markers) in document.data!!) {
                 val markerList = markers as? List<Map<String, Any>> ?: continue
 
                 for (markerData in markerList) {
@@ -213,7 +228,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
                     drawable.draw(canvas)
                     val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
 
-                    val latLng = Convert().toLatLng(location)
+                    val latLng = convert.toLatLng(location)
                     // Add a marker for each stop
                     val mark = MarkerOptions().position(latLng).title(name).anchor(0.5f, 0.5f).icon(customMarker)
                     googleMap.addMarker(mark)
@@ -222,6 +237,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         }
     }
 
+    /**
+     * Getting the last known location
+     * @param context of the application
+     * @param onLocationReceived listener
+     */
     private fun getLastKnownLocation(context: Context, onLocationReceived: (Location?) -> Unit) {
         // Initialize the FusedLocationProviderClient
         val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
@@ -241,6 +261,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         }
     }
 
+    /**
+     * Its called when user longs clicked on the map
+     * @param latLng location of the long click
+     */
     override fun onMapLongClick(latLng: LatLng) {
         // Remove the previous marker if it exists
         longPressMarker?.remove()

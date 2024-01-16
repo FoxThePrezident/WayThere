@@ -27,35 +27,44 @@ package com.waywardTeam.wayward <<1>> {
     class RouteSearchActivity {
         -mapToPositionCode: Int
         -mapFromPositionCode: Int
+        -byArrive: Boolean
         -fromLatLng: LatLng
         -toLatLng: LatLng
         -fromLocation: String
         -toLocation: String
-        -handler: Handler
-        -text: text
-        -button: Button
+        -arrivalTime: LocalTime
+        -text: Text
+        -options: Options
+        -button: Buttons
+        -loading: ProgressBar
+        -convert: Convert
+        -internet: Internet
         -fileManager: FileManager
-        -userPreferences: UserPreferences
-        -placesClient: PlacesClient
+        -notification: Notification
+        -miscellaneous: Miscellaneous
+        -userSettings: UserSettings
+
         ~onCreate(): Void
+        -RouteSearchActivity.buttonClickListener()
         -searchRoute(): Void
         -processData(): Void
-        -getData(): Void
-        ~onActivityResult(): Void
+        -getData(): Transportation[]
     }
     RouteSearchActivity -right- MapActivity
     RouteSearchActivity -- utilities.Convert
     RouteSearchActivity -- utilities.Internet
     RouteSearchActivity -- utilities.Trimming
     RouteSearchActivity -- utilities.FileManager
+    RouteSearchActivity -- utilities.Notification
     RouteSearchActivity -- utilities.Miscellaneous
-    RouteSearchActivity -- utilities.dataClasses.Transportation
+    RouteSearchActivity -- utilities.dataClasses.Stop
     RouteSearchActivity -- utilities.dataClasses.MapData
+    RouteSearchActivity -- utilities.dataClasses.UserSettings
     RouteSearchActivity -- utilities.dataClasses.PolylineRoute
-    RouteSearchActivity -- utilities.dataClasses.UserPreferences
+    RouteSearchActivity -- utilities.dataClasses.notificationData
 
     class MapActivity {
-        -debugTag: String
+        -id: Int
         -task: String
         -locationPermissionRequestCode: Int
         -googleMap: GoogleMap
@@ -64,6 +73,9 @@ package com.waywardTeam.wayward <<1>> {
         -pickedName: String
         -pickedLocation: LatLng
         -longPressMarker: Marker
+        -internet: Internet
+        -convert: Convert
+
         ~onCreate(): Void
         ~onMapReady(): Void
         -locationHandle(): Void
@@ -74,7 +86,6 @@ package com.waywardTeam.wayward <<1>> {
     }
     MapActivity -- utilities.Convert
     MapActivity -- utilities.Internet
-    MapActivity -- utilities.dataClasses.Stop
     MapActivity -- utilities.dataClasses.MapData
     MapActivity -- utilities.dataClasses.PolylineRoute
 
@@ -82,8 +93,6 @@ package com.waywardTeam.wayward <<1>> {
         class Convert {
             +toDataClass(): Transportation[]
             +toLatLng(): LatLng
-            +formatJSON(): City
-            +formatTime(): String
         }
         Convert -- Transportation
 
@@ -91,7 +100,7 @@ package com.waywardTeam.wayward <<1>> {
             class Stop {
                 +name: String
                 +location: String
-                +type: String
+                +type: String[]
                 ~equals(): Boolean
                 ~hashCode(): Int
             }
@@ -104,7 +113,7 @@ package com.waywardTeam.wayward <<1>> {
                 +time: LocalTime
                 +stop: String
             }
-            class UserPreferences {
+            class UserSettings {
                 +timeBetweenWaiting: Long
             }
             class MapData {
@@ -119,29 +128,49 @@ package com.waywardTeam.wayward <<1>> {
                 ~writeToParcel(): Void
                 ~describeContents(): Int
             }
+            class NotificationData {
+                +importance: Int
+                +text: String
+                ~writeToParcel(): Void
+                ~describeContents: Int
+            }
             Route --|> Transportation
-            UserPreferences -[hidden]- Stop
+            UserSettings -[hidden]- Stop
         }
 
         class FileManager {
-            -userPreferencesName: String
-            +readPreferences(): UserPreferences
+            -userSettingsName: String
+            +readPreferences(): UserSettings
             +savePreferences(): Void
             -writeToFile(): Void
             -readFromFile(): String
         }
-        FileManager -- UserPreferences
+        FileManager -- UserSettings
 
         class Internet {
+            +getPage(): String
             +fromLatLngToName(): String
-            +getDirections(): String
+            +getDirection(): String
             +getPublicRoute(): String
         }
 
         class Miscellaneous {
             +findClosestMarker(): Stop
-            +showNotification(): Void
+            +getDirections(): LatLng, Long
         }
+
+        class Notification {
+            -notificationId: Int
+            -getChannelId(): String
+            ~onReceive(): Void
+            +send(): Void
+            +delay(): Void
+        }
+
+        class AlarmReceiver {
+            ~onReceive(): Void
+        }
+        AlarmReceiver -- Notification
 
         class Trimming {
             -page: String

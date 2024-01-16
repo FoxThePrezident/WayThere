@@ -23,6 +23,7 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -55,7 +56,7 @@ dependencies {
 
     // Firebase
     implementation("com.google.firebase:firebase-firestore:24.10.0")
-    implementation("com.google.firebase:firebase-analytics-ktx:21.5.0")
+    implementation("com.google.firebase:firebase-analytics:21.5.0")
 
     // Map utilities
     implementation("com.google.maps.android:android-maps-utils:3.4.0")
