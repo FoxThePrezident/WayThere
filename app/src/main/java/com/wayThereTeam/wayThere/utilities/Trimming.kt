@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 /**
  * Clearing html page from things that we do not need

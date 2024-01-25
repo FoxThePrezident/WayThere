@@ -15,7 +15,7 @@ Before you begin, ensure that you have the following:
 
 Clone the Repository
     
-    gh repo clone FoxThePrezident/Wayward
+    gh repo clone FoxThePrezident/WayThere
 
 Add Google Cloud API Key:
 

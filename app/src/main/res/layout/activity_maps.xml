@@ -10,7 +10,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:name="com.google.android.gms.maps.SupportMapFragment"
-            tools:context="com.waywardTeam.wayward.MapActivity" />
+            tools:context="com.wayThereTeam.wayThere.MapActivity" />
 
     <Button
             android:id="@+id/search_button"

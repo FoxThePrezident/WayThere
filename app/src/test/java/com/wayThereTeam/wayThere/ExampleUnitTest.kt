@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward
+package com.wayThereTeam.wayThere
 
 import org.junit.Test
 

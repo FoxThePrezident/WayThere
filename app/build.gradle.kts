@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wayward"
+    namespace = "com.wayThereTeam.wayThere"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.wayward"
+        applicationId = "com.wayThereTeam.wayThere"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

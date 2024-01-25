@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward
+package com.wayThereTeam.wayThere
 
 import android.Manifest
 import android.content.Intent
@@ -9,7 +9,6 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.wayward.R
 
 /**
  * Welcome screen for showing users necessary information about permissions, usage and functions

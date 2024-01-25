@@ -39,6 +39,7 @@ package com.waywardTeam.wayward <<1>> {
         -loading: ProgressBar
         -convert: Convert
         -internet: Internet
+        -database: Database
         -fileManager: FileManager
         -notification: Notification
         -miscellaneous: Miscellaneous
@@ -52,6 +53,7 @@ package com.waywardTeam.wayward <<1>> {
     }
     RouteSearchActivity -right- MapActivity
     RouteSearchActivity -- utilities.Convert
+    RouteSearchActivity -- utilities.Database
     RouteSearchActivity -- utilities.Internet
     RouteSearchActivity -- utilities.Trimming
     RouteSearchActivity -- utilities.FileManager
@@ -61,7 +63,7 @@ package com.waywardTeam.wayward <<1>> {
     RouteSearchActivity -- utilities.dataClasses.MapData
     RouteSearchActivity -- utilities.dataClasses.UserSettings
     RouteSearchActivity -- utilities.dataClasses.PolylineRoute
-    RouteSearchActivity -- utilities.dataClasses.notificationData
+    RouteSearchActivity -- utilities.dataClasses.NotificationData
 
     class MapActivity {
         -id: Int
@@ -73,8 +75,9 @@ package com.waywardTeam.wayward <<1>> {
         -pickedName: String
         -pickedLocation: LatLng
         -longPressMarker: Marker
-        -internet: Internet
         -convert: Convert
+        -internet: Internet
+        -database: Database
 
         ~onCreate(): Void
         ~onMapReady(): Void
@@ -85,6 +88,7 @@ package com.waywardTeam.wayward <<1>> {
         ~onRequestPermissionsResult(): Void
     }
     MapActivity -- utilities.Convert
+    MapActivity -- utilities.Database
     MapActivity -- utilities.Internet
     MapActivity -- utilities.dataClasses.MapData
     MapActivity -- utilities.dataClasses.PolylineRoute
@@ -94,15 +98,23 @@ package com.waywardTeam.wayward <<1>> {
             +toDataClass(): Transportation[]
             +toLatLng(): LatLng
         }
-        Convert -- Transportation
+        Convert -- dataClasses.Transportation
+
+        class Database {
+            -db: FirebaseFirestore
+            -fileManager: FileManager
+            -userSettings: UserSettings
+            +getStops: Stop[]
+            -formatData(): Stop[]
+            -getData(): String, Any
+        }
+        Database -- dataClasses.Stop
 
         package dataClasses <<3>> {
             class Stop {
                 +name: String
                 +location: String
                 +type: String[]
-                ~equals(): Boolean
-                ~hashCode(): Int
             }
             class Transportation {
                 +id: String
@@ -115,6 +127,8 @@ package com.waywardTeam.wayward <<1>> {
             }
             class UserSettings {
                 +timeBetweenWaiting: Long
+                stopsDB: Stop[]
+                dbExpiration: LocalDate
             }
             class MapData {
                 +name: String
@@ -129,13 +143,15 @@ package com.waywardTeam.wayward <<1>> {
                 ~describeContents(): Int
             }
             class NotificationData {
+                +channelName: String
                 +importance: Int
                 +text: String
                 ~writeToParcel(): Void
                 ~describeContents: Int
             }
-            Route --|> Transportation
-            UserSettings -[hidden]- Stop
+            Route -right-|> Transportation
+            UserSettings -[Hidden]- Route
+            UserSettings -- Stop
         }
 
         class FileManager {
@@ -158,6 +174,7 @@ package com.waywardTeam.wayward <<1>> {
             +findClosestMarker(): Stop
             +getDirections(): LatLng, Long
         }
+        Miscellaneous -[Hidden]- AlarmReceiver
 
         class Notification {
             -notificationId: Int

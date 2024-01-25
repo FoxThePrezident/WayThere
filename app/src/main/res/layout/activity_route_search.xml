@@ -168,13 +168,15 @@
                     android:layout_height="wrap_content"
                     android:text="@string/specifiedTime"/>
 
-            <EditText
-                    android:id="@+id/arriveTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="none"/>
         </RadioGroup>
+
+        <EditText
+                android:id="@+id/arriveTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="none"
+                android:visibility="gone"/>
 
         <TextView
                 android:id="@+id/publicTxt"

@@ -1,10 +1,10 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat.getString
-import com.example.wayward.R
 import com.google.android.gms.maps.model.LatLng
+import com.wayThereTeam.wayThere.R
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader

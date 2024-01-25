@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward
+package com.wayThereTeam.wayThere
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -14,8 +14,6 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.wayward.R
-import com.example.wayward.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -23,11 +21,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.firebase.firestore.FirebaseFirestore
-import com.waywardTeam.wayward.utilities.Convert
-import com.waywardTeam.wayward.utilities.Internet
-import com.waywardTeam.wayward.utilities.MapData
-import com.waywardTeam.wayward.utilities.PolylineRoute
+import com.wayThereTeam.wayThere.databinding.ActivityMapsBinding
+import com.wayThereTeam.wayThere.utilities.*
 import kotlin.concurrent.thread
 
 
@@ -48,8 +43,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
     private var longPressMarker: Marker? = null
 
     // Custom classes
-    private lateinit var internet: Internet
     private lateinit var convert: Convert
+    private lateinit var internet: Internet
+    private lateinit var database: Database
 
     // Function for setup activity on a first launch
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,8 +58,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
         task = intent.getStringExtra("task").toString()
         id = intent.getIntExtra("id", 0)
 
-        internet = Internet(this)
         convert = Convert()
+        internet = Internet(this)
+        database = Database(this)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -195,44 +192,29 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLong
      * Handling marker related things
      */
     private fun markerHandle() {
-        val db = FirebaseFirestore.getInstance()
-
-        val docRef = db.collection("Country").document("Slovakia")
-        docRef.get().addOnFailureListener { _ ->
-        }.addOnSuccessListener { document ->
-            if (document == null || document.data == null) {
-                return@addOnSuccessListener
+        val markers = database.getStops()
+        for (marker in markers) {
+            // Setting up custom icon for marker
+            val icon = if (marker.type.contains("train")) {
+                R.drawable.baseline_train_24
+            } else {
+                R.drawable.baseline_bus_24
             }
+            // Converting it to bitmap
+            val drawable = ContextCompat.getDrawable(this, icon)
+            val bitmap = Bitmap.createBitmap(
+                drawable!!.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
 
-            for ((_, markers) in document.data!!) {
-                val markerList = markers as? List<Map<String, Any>> ?: continue
-
-                for (markerData in markerList) {
-                    val name = markerData["name"] as? String ?: ""
-                    val location = markerData["location"] as? String ?: ""
-                    val types = (markerData["type"] as? List<*>)?.map { it.toString() }?.toTypedArray() ?: emptyArray()
-
-                    // Setting up custom icon for marker
-                    val icon: Int = if (types.contains("train")) {
-                        R.drawable.baseline_train_24
-                    } else {
-                        R.drawable.baseline_bus_24
-                    }
-                    // Converting it to bitmap
-                    val drawable = ContextCompat.getDrawable(this, icon)
-                    val bitmap = Bitmap.createBitmap(
-                        drawable!!.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-                    )
-                    val canvas = Canvas(bitmap)
-                    drawable.setBounds(0, 0, canvas.width, canvas.height)
-                    drawable.draw(canvas)
-                    val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
-
-                    val latLng = convert.toLatLng(location)
-                    // Add a marker for each stop
-                    val mark = MarkerOptions().position(latLng).title(name).anchor(0.5f, 0.5f).icon(customMarker)
-                    googleMap.addMarker(mark)
-                }
+            val latLng = convert.toLatLng(marker.location)
+            // Add a marker for each stop
+            val mark = MarkerOptions().position(latLng).title(marker.name).anchor(0.5f, 0.5f).icon(customMarker)
+            runOnUiThread {
+                googleMap.addMarker(mark)
             }
         }
     }

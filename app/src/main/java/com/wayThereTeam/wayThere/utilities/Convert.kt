@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalTime

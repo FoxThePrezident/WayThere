@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward
+package com.wayThereTeam.wayThere
 
 
 import android.app.NotificationManager
@@ -7,21 +7,20 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType.TYPE_NULL
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.wayward.R
+import androidx.core.content.res.TypedArrayUtils
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.waywardTeam.wayward.utilities.*
+import com.wayThereTeam.wayThere.utilities.*
 import java.time.Duration
 import java.time.LocalTime
 import java.util.*
@@ -72,6 +71,7 @@ class RouteSearchActivity : AppCompatActivity() {
     // Custom classes
     private lateinit var convert: Convert
     private lateinit var internet: Internet
+    private lateinit var database: Database
     private lateinit var fileManager: FileManager
     private lateinit var notification: Notification
     private lateinit var miscellaneous: Miscellaneous
@@ -98,6 +98,7 @@ class RouteSearchActivity : AppCompatActivity() {
         // Loading custom classes
         convert = Convert()
         internet = Internet(this)
+        database = Database(this)
         fileManager = FileManager(this)
         notification = Notification()
         miscellaneous = Miscellaneous(this)
@@ -145,16 +146,8 @@ class RouteSearchActivity : AppCompatActivity() {
         button.search.setOnClickListener {
             loading.visibility = View.VISIBLE
             thread(start = true) {
-                val db = FirebaseFirestore.getInstance()
-
-                val docRef = db.collection("Country").document("Slovakia")
-                docRef.get().addOnFailureListener { exception ->
-                    loading.visibility = View.INVISIBLE
-                    println("Database failed: $exception")
-                }.addOnSuccessListener { document ->
-                    searchRoute(document)
-                    loading.visibility = View.INVISIBLE
-                }
+                searchRoute(database.getStops())
+                loading.visibility = View.INVISIBLE
             }
         }
 
@@ -173,6 +166,7 @@ class RouteSearchActivity : AppCompatActivity() {
         })
 
         // Time input arrival time
+        options.arriveTimeEditText.inputType = TYPE_NULL
         options.arriveTimeEditText.setText(
             getString(
                 R.string.time_format, LocalTime.now().hour, LocalTime.now().minute
@@ -201,12 +195,14 @@ class RouteSearchActivity : AppCompatActivity() {
                 // If "Destination ASAP" is selected, hide the EditText
                 R.id.destinationASAP -> {
                     publicTxt.visibility = View.VISIBLE
+                    options.arriveTimeEditText.visibility = View.GONE
                     findViewById<LinearLayout>(R.id.transport).visibility = View.GONE
                     byArrive = false
                 }
                 // If "Specified Time" is selected, show the EditText
                 R.id.specifiedTime -> {
                     publicTxt.visibility = View.GONE
+                    options.arriveTimeEditText.visibility = View.VISIBLE
                     findViewById<LinearLayout>(R.id.transport).visibility = View.VISIBLE
                     byArrive = true
                 }
@@ -239,119 +235,97 @@ class RouteSearchActivity : AppCompatActivity() {
 
     /**
      * Handle everything around route searching, as argument it will have a document from a database
-     * @param document from the database call
+     * @param stops list for stops for public transport
      */
-    private fun searchRoute(document: DocumentSnapshot) {
-        if (document.data == null) return
-        if (fromLatLng == null || toLatLng == null) {
-            return
-        }
-
-        val stops = mutableListOf<Stop>()
-
-        // Looping over every object in a document provided by database
-        for ((_, markers) in document.data!!) {
-            val markerList = when (markers) {
-                is List<*> -> markers.filterIsInstance<Map<String, Any>>()
-                else -> null
-            }
-
-            // Formatting data to proper format
-            if (markerList != null) {
-                for (markerData in markerList) {
-                    val name = markerData["name"] as? String ?: ""
-                    val location = markerData["location"] as? String ?: ""
-                    val types = (markerData["type"] as? List<*>)?.map { it.toString() }?.toTypedArray() ?: emptyArray()
-
-                    val stop = Stop(name, location, types)
-                    stops.add(stop)
-                }
-            }
-        }
-
+    private fun searchRoute(stops: List<Stop>) {
         // Finding the closest public transport stops to start and end position
-        val fromStop = miscellaneous.findClosestMarker(fromLatLng!!, stops)
-        val toStop = miscellaneous.findClosestMarker(toLatLng!!, stops)
-        if (fromStop == null || toStop == null) {
-            return
-        }
+        val fromStop = miscellaneous.findClosestMarker(fromLatLng!!, stops) ?: return
+        val toStop = miscellaneous.findClosestMarker(toLatLng!!, stops) ?: return
+
         // Getting html page and its content
         val link = "cp.hnonline.sk/vlakbusmhd/spojenie/vysledky/"
-        thread(start = true) {
-            val routes = mutableListOf<PolylineRoute>()
-            // Finding the first possible route
-            // Loading user specified delay
-            val delay: Long = userSettings.timeBetweenWaiting
-            // Get current time
-            val currentTime = LocalTime.now()
+        val routes = mutableListOf<PolylineRoute>()
+        // Finding the first possible route
+        // Loading user specified delay
+        val delay: Long = userSettings.timeBetweenWaiting
+        // Get current time
+        val currentTime = LocalTime.now()
 
-            val selectedTransportId = options.transOption.selectedItemId.toInt()
-            val (fromRoute, fromDuration) = when (selectedTransportId) {
+        val selectedTransportId = options.transOption.selectedItemId.toInt()
+        val (fromRoute, fromDuration) = when (selectedTransportId) {
+            // From starting position to first stop
+            0 -> miscellaneous.getDirections(fromLatLng!!, toLatLng!!)
+            // From starting position to first stop
+            1 -> miscellaneous.getDirections(fromLatLng!!, toLatLng!!, "driving")
+            else -> {
                 // From starting position to first stop
-                0 -> miscellaneous.getDirections(fromLatLng!!, toLatLng!!)
-                // From starting position to first stop
-                1 -> miscellaneous.getDirections(fromLatLng!!, toLatLng!!, "driving")
-                else -> {
-                    // From starting position to first stop
-                    val data = miscellaneous.getDirections(
-                        fromLatLng!!, convert.toLatLng(fromStop.location)
-                    )
-                    // Between stops
-                    val (publicRoute, _) = miscellaneous.getDirections(
-                        convert.toLatLng(fromStop.location), convert.toLatLng(toStop.location), "driving"
-                    )
-                    // From last stop to destination
-                    val (toRoute, _) = miscellaneous.getDirections(
-                        convert.toLatLng(toStop.location), toLatLng!!
-                    )
-                    routes.add(PolylineRoute(publicRoute, Color.RED))
-                    routes.add(PolylineRoute(toRoute, Color.GREEN))
+                val data = miscellaneous.getDirections(
+                    fromLatLng!!, convert.toLatLng(fromStop.location)
+                )
+                // Between stops
+                val (publicRoute, _) = miscellaneous.getDirections(
+                    convert.toLatLng(fromStop.location), convert.toLatLng(toStop.location), "driving"
+                )
+                // From last stop to destination
+                val (toRoute, _) = miscellaneous.getDirections(
+                    convert.toLatLng(toStop.location), toLatLng!!
+                )
+                routes.add(PolylineRoute(publicRoute, Color.RED))
+                routes.add(PolylineRoute(toRoute, Color.GREEN))
 
-                    data
-                }
+                data
             }
-            routes.add(PolylineRoute(fromRoute, Color.GREEN))
-
-            // Calculating time
-            val timeToWalk = fromDuration / 60
-            val timeAtStation = currentTime.plusMinutes(timeToWalk).plusMinutes(delay)
-            if (selectedTransportId == 3) {
-                val route = getData(link, fromStop.name, toStop.name, timeAtStation) ?: return@thread
-                arrivalTime = route[0].route[0].time
-            }
-            if (arrivalTime == null) {
-                return@thread
-            }
-            val timeToDeparture = arrivalTime!!.minusMinutes(timeToWalk).minusMinutes(delay)
-            val freeTime = Duration.between(currentTime, timeToDeparture)
-
-            // Notification
-            val hours = freeTime.toHours()
-            val minutes = freeTime.toMinutes() - (hours * 24)
-            var notData = NotificationData(
-                NotificationManager.IMPORTANCE_DEFAULT,
-                getString(R.string.freeTime, getString(R.string.time_format, hours, minutes))
-            )
-            notification.send(this, notData)
-            notData = NotificationData(NotificationManager.IMPORTANCE_HIGH, getString(R.string.timeToDeparture))
-            notification.delay(this, notData, freeTime)
-
-            // Launching map
-            loading.visibility = View.INVISIBLE
-            val intent = Intent(this, MapActivity::class.java)
-            intent.putExtra("task", "show")
-            intent.putParcelableArrayListExtra("routes", ArrayList(routes))
-            launcher.launch(intent)
-//            startActivityForResult(intent, mapToPositionCode)
         }
-        loading.visibility = View.INVISIBLE
+        routes.add(PolylineRoute(fromRoute, Color.GREEN))
+
+        // Calculating time
+        val timeToWalk = fromDuration / 60
+        val timeAtStation = currentTime.plusMinutes(timeToWalk).plusMinutes(delay)
+        if (selectedTransportId == 3) {
+            val route = getData(link, fromStop.name, toStop.name, timeAtStation) ?: return
+            arrivalTime = route[0].route[0].time
+        }
+        if (arrivalTime == null) {
+            return
+        }
+        val timeToDeparture = arrivalTime!!.minusMinutes(timeToWalk).minusMinutes(delay)
+        val freeTime = Duration.between(currentTime, timeToDeparture)
+
+        // Notification
+        val hours = freeTime.toHours()
+        val minutes = freeTime.toMinutes() - (hours * 24)
+        var notificationData = NotificationData(
+            "Notification",
+            NotificationManager.IMPORTANCE_DEFAULT,
+            getString(R.string.freeTime, getString(R.string.time_format, hours, minutes))
+        )
+        notification.send(this, notificationData)
+        notificationData =
+            NotificationData("Departure", NotificationManager.IMPORTANCE_HIGH, getString(R.string.timeToDeparture))
+        notification.delay(this, notificationData, freeTime)
+
+        // Launching map
+        val intent = Intent(this, MapActivity::class.java)
+        intent.putExtra("task", "show")
+        intent.putParcelableArrayListExtra("routes", ArrayList(routes))
+        launcher.launch(intent)
     }
 
     /**
      * Checking if search button could be enabled
      */
     private fun processData() {
-        button.search.isEnabled = (fromLatLng != null) && (toLatLng != null) && (arrivalTime != null)
+        button.search.isEnabled = (
+                // Checking if fromLatLng is set
+                (fromLatLng != null) &&
+                        // Checking if toLatLng is set
+                        (toLatLng != null) &&
+                        // Checking if we need to have time set up
+                        (when (options.typeOfRouteSearch.checkedRadioButtonId) {
+                            0 -> true
+                            1 -> arrivalTime != null
+                            else -> false
+                        }))
     }
 
     /**

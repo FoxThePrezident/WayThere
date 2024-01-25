@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 import android.content.Context
 import android.location.Location
@@ -17,7 +17,7 @@ class Miscellaneous(private var context: Context) {
      * @param stops list of markers that is chosen from
      * @return marker that is closest
      */
-    fun findClosestMarker(location: LatLng, stops: MutableList<Stop>): Stop? {
+    fun findClosestMarker(location: LatLng, stops: List<Stop>): Stop? {
         var closestStop: Stop? = null
         var smallestDistance = Float.MAX_VALUE
 

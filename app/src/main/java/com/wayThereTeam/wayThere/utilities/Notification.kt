@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -10,7 +10,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.wayward.R
+import com.wayThereTeam.wayThere.R
 import java.time.Duration
 
 /**
@@ -52,7 +52,7 @@ class Notification : BroadcastReceiver() {
 
         // Create a notification channel if not already created
         val channel = NotificationChannel(
-            channelId, "Default Channel", notificationData.importance
+            channelId, notificationData.channelName, notificationData.importance
         )
         notificationManager.createNotificationChannel(channel)
 

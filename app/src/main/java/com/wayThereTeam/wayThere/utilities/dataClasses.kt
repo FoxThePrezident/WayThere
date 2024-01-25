@@ -1,39 +1,19 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDate
 import java.time.LocalTime
 
 // Data classes for public stops
-data class Stop(val name: String = "", val location: String = "", val type: Array<String> = emptyArray()) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Stop
-
-        if (name != other.name) return false
-        if (location != other.location) return false
-        if (!type.contentEquals(other.type)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + location.hashCode()
-        result = 31 * result + type.contentHashCode()
-        return result
-    }
-}
-
+data class Stop(val name: String = "", val location: String = "", val type: List<*> = emptyList<String>())
 
 // Routing using public transport
 data class Transportation(val id: String, val provider: String, val route: MutableList<Route>)
 data class Route(val time: LocalTime, val stop: String)
 
-data class UserSettings(var timeBetweenWaiting: Long)
+data class UserSettings(var timeBetweenWaiting: Long = 5, var stopsDB: List<Stop> = emptyList<Stop>(), var dbExpiration: LocalDate? = LocalDate.of(2000, 1, 1))
 
 data class MapData(val name: String, val location: LatLng?) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -86,13 +66,15 @@ data class PolylineRoute(val route: MutableList<LatLng>, val color: Int) : Parce
     }
 }
 
-data class NotificationData(val importance: Int, val text: String) : Parcelable {
+data class NotificationData(val channelName: String, val importance: Int, val text: String) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(), parcel.readString().toString()
-    ) {
-    }
+        parcel.readString().toString(),
+        parcel.readInt(),
+        parcel.readString().toString()
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(channelName)
         parcel.writeInt(importance)
         parcel.writeString(text)
     }

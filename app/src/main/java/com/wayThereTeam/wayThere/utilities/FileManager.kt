@@ -1,4 +1,4 @@
-package com.waywardTeam.wayward.utilities
+package com.wayThereTeam.wayThere.utilities
 
 import android.content.Context
 import com.google.gson.Gson
@@ -6,6 +6,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import java.time.LocalDate
 
 /**
  * Class for managing files
@@ -24,7 +25,7 @@ class FileManager(private val context: Context) {
         val jsonString = readFromFile(userSettingsName)
         if (jsonString == null) {
             // If a file doesn't exist or there's an issue, create a new one with default settings
-            savePreferences(UserSettings(5))
+            savePreferences(UserSettings(5, emptyList(), LocalDate.now().minusDays(1)))
             // Read again after creating the file
             return readFromFile(userSettingsName)?.let {
                 Gson().fromJson(it, UserSettings::class.java)
