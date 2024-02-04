@@ -13,7 +13,6 @@ import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.res.TypedArrayUtils
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
@@ -281,7 +280,7 @@ class RouteSearchActivity : AppCompatActivity() {
         // Calculating time
         val timeToWalk = fromDuration / 60
         val timeAtStation = currentTime.plusMinutes(timeToWalk).plusMinutes(delay)
-        if (selectedTransportId == 3) {
+        if ((selectedTransportId == 3) || (options.typeOfRouteSearch.checkedRadioButtonId == R.id.destinationASAP)) {
             val route = getData(link, fromStop.name, toStop.name, timeAtStation) ?: return
             arrivalTime = route[0].route[0].time
         }
@@ -322,8 +321,8 @@ class RouteSearchActivity : AppCompatActivity() {
                         (toLatLng != null) &&
                         // Checking if we need to have time set up
                         (when (options.typeOfRouteSearch.checkedRadioButtonId) {
-                            0 -> true
-                            1 -> arrivalTime != null
+                            R.id.destinationASAP -> true
+                            R.id.specifiedTime -> arrivalTime != null
                             else -> false
                         }))
     }
